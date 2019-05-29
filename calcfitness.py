@@ -11,6 +11,8 @@ def b_dist(op, left, right):
         for i in range(len(left)):
             d += eval('abs(%s - %s)' % (ord(left[i]), ord(right[i])))
         return d
+    if type(op) == ast.In:
+        return
 
 
 def normalise(n):
@@ -28,16 +30,15 @@ def test(actual, expected):
     print(msg)
 
 
-def test_b_dist_Eq(op_list):
-    test(b_dist(op_list[0], 'a', 'b'), 1)
-    test(b_dist(op_list[0], 'aac', 'bbg'), 6)
+def test_b_dist_Eq(op):
+    test(b_dist(op, 'a', 'b'), 1)
+    test(b_dist(op, 'aac', 'bbg'), 6)
 
 
 if __name__ == '__main__':
     op_list = [
-        ast.parse("'a'=='b'").body[0].value.ops[0],     # type == ast.Eq
-        ast.parse("'a' + 'b'").body[0].value.op,         # type == ast.Add
-        ast.parse("'a' in 'b'").body[0].value.ops[0]       # type == ast.In
+        ast.parse("'a'=='b'").body[0].value.ops[0],         # type == ast.Eq
+        ast.parse("'a' in 'b'").body[0].value.ops[0]        # type == ast.In
     ]
 
-    test_b_dist_Eq(op_list)
+    test_b_dist_Eq(op_list[0])
