@@ -11,26 +11,27 @@ import ast
 from tree_walk import * 
 
 def fun(a, b, c):
-    if a == 100:
-        if a < b:
-            if c == 0:
+    if "abc" in a:
+        if "a" in b:
+            if "ab" in c:
                 pass
-            if b < c:
+            if "ac" in c:
                 pass
+li=[] #list that contain numbers
 
 class ChangeIf(TreeWalk):
     def pre_body_name(self):
         body = self.cur_node
         for i, child in enumerate(body[:]):
             self.walk(child)
-            if child contains concat:
-                break
+            #if child contains concat:
+            #    break
             if isinstance(child, ast.If):
-                lhs = body[i].test.left.id
-                op = body[i].test.ops[0]
-                rhs = body[i].test.comparators[0]
-                n = len(rhs)
-                compUpdate(temp, n)
+                lhs = body[i].test.left.s # in order to cover "in" operator, 양쪽 다 변수인 경우 생각 해야함.
+                #op = body[i].test.ops[0] == "In()"
+                #rhs = body[i].test.comparators[0] # if a <someop> "abc"
+                n = len(lhs)
+                li.append(n)
         return True
 
     def pre_Call(self):
@@ -41,7 +42,6 @@ def minLength(f):
     _ast = astor.code_to_ast(f)
     walker = ChangeIf()
     walker.walk(_ast)
-    __ast = astor.to_source(_ast)
-    return __ast
+    print (li)
 
 minLength(fun)
