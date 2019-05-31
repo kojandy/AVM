@@ -53,8 +53,6 @@ def minLength(f):
     _ast = astor.code_to_ast(f)
     walker = ChangeIf()
     walker.walk(_ast)
-    li2 = sorted(li)
-    return li2[0]
-    #return li.sort()
+    return li
 
 print( minLength(fun) )
