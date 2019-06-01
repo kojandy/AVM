@@ -18,7 +18,7 @@ def fun(a, b, c):
             if c == "abc":
                 pass
 
-li=[] #list that contain num
+li={} #list that contain num
 
 class ChangeIf(TreeWalk):
     def pre_body_name(self):
@@ -29,17 +29,17 @@ class ChangeIf(TreeWalk):
             #    break
             if isinstance(child, ast.If):
                 op = body[i].test.ops[0]                
-                if isinstance(op,ast.Eq):                    
+                if isinstance(op,ast.Eq):   # ==               
                     lhs = body[i].test.left
                     rhs = body[i].test.comparators[0]
                     if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):
-                        if isinstance(lhs, ast.Str):
+                        if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Arg):
                             n = len(lhs.s)
-                            li.append(n)
-                        elif isinstance(rhs, ast.Str):
+                            li[rhs] = n
+                        elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Arg):
                             n = len(rhs.s)
-                            li.append(n)
-                else:                    
+                            li[lhs] = n
+                else:                       # in
                     lhs = body[i].test.left.s 
                     n = len(lhs)
                     li.append(n)
