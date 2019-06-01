@@ -18,11 +18,14 @@ def fun(a, b, c):
             if c == "abc":
                 pass
 
-li={} #list that contain num
+li={} #dict 
 
-def compUpdate(li, bef, aft):
-    if li[bef] > li[aft]:
-        li[x]
+def compUpdate(li, key, val):
+    if li[key] > n:
+        li[key] = n
+        return li
+    else:
+        return li
 
 class ChangeIf(TreeWalk):
     def pre_body_name(self):
@@ -38,16 +41,17 @@ class ChangeIf(TreeWalk):
                     rhs = body[i].test.comparators[0]
                     if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):
                         if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Arg):
-                            n = len(lhs.s)
-                            li[rhs] = n
+                            n = len(lhs.s)                            
+                            li = compUpdate(li, rhs, n)
                         elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Arg):
                             n = len(rhs.s)
-                            li[lhs] = n
+                            li = compUpdate(li, lhs, n)                            
                 else:                       # in
                     lhs = body[i].test.left.s 
                     rhs = body[i].test.comparators[0]
                     n = len(lhs)
-                    li[rhs] = n
+                    li = compUpdate(li, rhs, n)
+                    
         return True
 
     def pre_Call(self):
