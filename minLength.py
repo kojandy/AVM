@@ -20,6 +20,10 @@ def fun(a, b, c):
 
 li={} #list that contain num
 
+def compUpdate(li, bef, aft):
+    if li[bef] > li[aft]:
+        li[x]
+
 class ChangeIf(TreeWalk):
     def pre_body_name(self):
         body = self.cur_node
@@ -41,8 +45,9 @@ class ChangeIf(TreeWalk):
                             li[lhs] = n
                 else:                       # in
                     lhs = body[i].test.left.s 
+                    rhs = body[i].test.comparators[0]
                     n = len(lhs)
-                    li.append(n)
+                    li[rhs] = n
         return True
 
     def pre_Call(self):
