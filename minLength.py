@@ -47,11 +47,21 @@ class ChangeIf(TreeWalk):
                             n = len(rhs.s)
                             li = compUpdate(li, lhs, n)                            
                 else:                       # in
-                    lhs = body[i].test.left.s 
+                    lhs = body[i].test.left.s                     
                     rhs = body[i].test.comparators[0]
-                    n = len(lhs)
-                    li = compUpdate(li, rhs, n)
-                    
+                    if isinstance(rhs, ast.Arg):
+                        if isinstance(rhs.value.slice, ast.Index):      # "a" in a[2]
+                            n = rhs.value.slice.value.n + 1
+                            li = compUpdate(li, rhs.value.s, n)
+                        elif isinstance(rhs.value.slice, ast.Slice):    # "a" in a[2:4]
+                            upper = body.value.slice.upper.n
+                            #lower = body.value.slice.lower.n
+                            n = upper
+                            li = compUpdate(li, rhs.value.s, n)
+                        else:
+                            n = len(lhs)
+                            li = compUpdate(li, rhs, n)
+                        
         return True
 
     def pre_Call(self):
