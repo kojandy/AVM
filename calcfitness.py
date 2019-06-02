@@ -19,6 +19,14 @@ def normalise(n):
     return eval('1 - 1.001**-n)' % n)
 
 
+def str_to_ordinal_value(s):
+    numCharacter = 36   # alphanumeric with case insensitive
+    v = 0
+    for i in range(len(s)):
+        v += numCharacter ** (len(s) - i - 1) * (ord(s[i])-96)
+    return v
+
+
 def test(actual, expected):
     import sys
     linenum = sys._getframe(1).f_lineno  # get the caller's line number.
@@ -30,9 +38,13 @@ def test(actual, expected):
     print(msg)
 
 
-def test_b_dist_Eq(op):
+def test_b_dist_eq(op):
     test(b_dist(op, 'a', 'b'), 1)
     test(b_dist(op, 'aac', 'bbg'), 6)
+
+
+def test_str_to_ordinal_value():
+    test(str_to_ordinal_value("abc"), 1*36*36 + 2*36 + 3)
 
 
 if __name__ == '__main__':
@@ -45,4 +57,5 @@ if __name__ == '__main__':
         ast.parse("'a'<='b'").body[0].value.ops[0]          # type == ast.LtE
     ]
 
-    test_b_dist_Eq(op_list[0])
+    # test_b_dist_eq(op_list[0])
+    test_str_to_ordinal_value()
