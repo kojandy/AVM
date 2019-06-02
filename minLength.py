@@ -36,22 +36,40 @@ class ChangeIf(TreeWalk):
             #    break
             if isinstance(child, ast.If):
                 op = body[i].test.ops[0]                
-                if isinstance(op,ast.Eq):   # ==               
-                    lhs = body[i].test.left
-                    rhs = body[i].test.comparators[0]
+                if isinstance(op,ast.Eq):   # op: ==               
+                    lhs = body[i].test.left                 # * == *' 에서 *
+                    rhs = body[i].test.comparators[0]       # * == *' 에서 *'
                     if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):
-                        if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Arg):
-                            n = len(lhs.s)                            
-                            li = compUpdate(li, rhs, n)
-                        elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Arg):
+                        if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Arg):       
+                            if isinstance(rhs.value.slice, ast.Index):                  # "a" == a[3]
+                                n = rhs.value.slice.value.n + 1
+                                li = compUpdate(li, rhs.value.s, n)
+                            elif isinstance(rhs.value.slice, ast.Slice):                # "abba" == a[1:5]
+                                upper = body.value.slice.upper.n
+                                n = upper
+                                li = compUpdate(li, rhs.value.s, n)
+                            else:                                                       # "abc" == a
+                                n = len(lhs.s)                            
+                                li = compUpdate(li, rhs, n)
+                        elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Arg):     # a == "abc"
                             n = len(rhs.s)
                             li = compUpdate(li, lhs, n)                            
-                else:                       # in
-                    lhs = body[i].test.left.s 
+                else:                       # op: in
+                    lhs = body[i].test.left.s                     
                     rhs = body[i].test.comparators[0]
-                    n = len(lhs)
-                    li = compUpdate(li, rhs, n)
-                    
+                    if isinstance(rhs, ast.Arg):
+                        if isinstance(rhs.value.slice, ast.Index):      # "a" in a[2]
+                            n = rhs.value.slice.value.n + 1
+                            li = compUpdate(li, rhs.value.s, n)
+                        elif isinstance(rhs.value.slice, ast.Slice):    # "a" in a[2:4]
+                            upper = body.value.slice.upper.n
+                            #lower = body.value.slice.lower.n
+                            n = upper
+                            li = compUpdate(li, rhs.value.s, n)
+                        else:                                           # "abb" in a
+                            n = len(lhs)
+                            li = compUpdate(li, rhs, n)
+                        
         return True
 
     def pre_Call(self):
