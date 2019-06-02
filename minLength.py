@@ -21,17 +21,21 @@ def fun(a, b, c):
 li={} #dict 
 
 def compUpdate(li, key, val):
-    if li[key] > n:
-        li[key] = n
-        return li
+    if key not in li:
+        li[key] = val
     else:
-        return li
+        if li[key] > n:
+            li[key] = n
+            return li
+        else:
+            return li
 
 # op: ==, in
 # 한 쪽 스트링, 다른 쪽 arg 인 경우에 대해서
 # arg 만 슬라이싱 될 수 있음. exec 쓰면 해결 가능
 class ChangeIf(TreeWalk):
     def pre_body_name(self):
+        global li
         body = self.cur_node
         for i, child in enumerate(body[:]):
             self.walk(child)            
@@ -56,17 +60,17 @@ class ChangeIf(TreeWalk):
                     # no slicing to arg
                     else:       
                         if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):
-                            if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Name):
+                            if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Name):      # 오른쪽이 파라미터
                                 n = len(lhs.s)
-                                li = compUpdate(li, lhs.id, n)
-                            elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Name):
+                                li = compUpdate(li, rhs.id, n)
+                            elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Name):    # 왼쪽이 파라미터
                                 n = len(rhs.s)
-                                li = compUpdate(li, rhs.id, n)                   
+                                li = compUpdate(li, lhs.id, n)                   
                 else:                       # op: in
                     lhs = body[i].test.left.s           # 'abcde' 같은 것            
                     rhs = body[i].test.comparators[0]   #.id 해야 파라미터 나옴
                     # yes slicing
-                    if isinstance(lhs, ast.Subscript) or isinstance(rhs, ast.Subscript)
+                    if isinstance(lhs, ast.Subscript) or isinstance(rhs, ast.Subscript):
                         if isinstance(rhs, ast.Name):
                             if isinstance(rhs.slice, ast.Index):      # "a" in a[2]
                                 n = rhs.slice.value.n + 1
