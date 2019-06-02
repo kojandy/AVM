@@ -16,7 +16,7 @@ def b_dist(op, left, right):
 
 
 def normalise(n):
-    return eval('1 - 1.001**-n)' % n)
+    return 1 - 1.001**(-n)
 
 
 def str_to_ordinal_value(s):
