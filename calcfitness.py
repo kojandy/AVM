@@ -13,7 +13,15 @@ def b_dist(op, left, right):
         return d
     if type(op) == ast.In:
         return
-    
+    if type(op) == ast.Gt:
+        return str_to_ordinal_value(right) - str_to_ordinal_value(left) + 1
+    if type(op) == ast.GtE:
+        return str_to_ordinal_value(right) - str_to_ordinal_value(left)
+    if type(op) == ast.Lt:
+        return str_to_ordinal_value(left) - str_to_ordinal_value(right) + 1
+    if type(op) == ast.LtE:
+        return str_to_ordinal_value(left) - str_to_ordinal_value(right)
+
 
 def normalise(n):
     return 1 - 1.001**(-n)
@@ -70,4 +78,4 @@ if __name__ == '__main__':
 
     # test_b_dist_eq(op_list[0])
     test_str_to_ordinal_value()
-    # test_b_dist_order(op_list[1:])
+    test_b_dist_order(op_list[1:])
