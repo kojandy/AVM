@@ -13,7 +13,7 @@ def b_dist(op, left, right):
         return d
     if type(op) == ast.In:
         return
-
+    
 
 def normalise(n):
     return 1 - 1.001**(-n)
@@ -38,6 +38,17 @@ def test(actual, expected):
     print(msg)
 
 
+def test_b_dist_order(oplist):
+    test(b_dist(oplist[0], 'a', 'b'), 2)
+    test(b_dist(oplist[1], 'a', 'b'), 1)
+
+    test(b_dist(oplist[2], 'a', 'b'), 0)
+    test(b_dist(oplist[3], 'a', 'b'), -1)
+
+    test(b_dist(oplist[0], 'aaa', 'abc'), 39)
+    test(b_dist(oplist[1], 'aaa', 'abc'), 38)
+
+
 def test_b_dist_eq(op):
     test(b_dist(op, 'a', 'b'), 1)
     test(b_dist(op, 'aac', 'bbg'), 6)
@@ -59,3 +70,4 @@ if __name__ == '__main__':
 
     # test_b_dist_eq(op_list[0])
     test_str_to_ordinal_value()
+    # test_b_dist_order(op_list[1:])
