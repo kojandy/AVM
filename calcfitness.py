@@ -16,7 +16,7 @@ def b_dist(op, left, right):
 
 
 def normalise(n):
-    return eval('1 - 1.001**-n)' % n)
+    return 1 - 1.001**(-n)
 
 
 def test(actual, expected):
@@ -46,3 +46,4 @@ if __name__ == '__main__':
     ]
 
     test_b_dist_Eq(op_list[0])
+    normalise(1)
