@@ -38,7 +38,11 @@ def test_b_dist_Eq(op):
 if __name__ == '__main__':
     op_list = [
         ast.parse("'a'=='b'").body[0].value.ops[0],         # type == ast.Eq
-        ast.parse("'a' in 'b'").body[0].value.ops[0]        # type == ast.In
+
+        ast.parse("'a'>'b'").body[0].value.ops[0],          # type == ast.Gt
+        ast.parse("'a'>='b'").body[0].value.ops[0],         # type == ast.GtE
+        ast.parse("'a'<'b'").body[0].value.ops[0],          # type == ast.Lt
+        ast.parse("'a'<='b'").body[0].value.ops[0]          # type == ast.LtE
     ]
 
     test_b_dist_Eq(op_list[0])
