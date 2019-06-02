@@ -32,32 +32,31 @@ class ChangeIf(TreeWalk):
         body = self.cur_node
         for i, child in enumerate(body[:]):
             self.walk(child)
-            #if child contains concat:
-            #    break
+            # slicing이 있으면 .value가 붙는다!!!!
             if isinstance(child, ast.If):
                 op = body[i].test.ops[0]                
                 if isinstance(op,ast.Eq):   # op: ==               
                     lhs = body[i].test.left                 # * == *' 에서 *
                     rhs = body[i].test.comparators[0]       # * == *' 에서 *'
-                    if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):
-                        if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Arg):       
+                    if isinstance(lhs.value, ast.Str) or isinstance(rhs.value, ast.Str):
+                        if isinstance(lhs.value, ast.Str) and isinstance(rhs.value, ast.Name):       
                             if isinstance(rhs.value.slice, ast.Index):                  # "a" == a[3]
-                                n = rhs.value.slice.value.n + 1
+                                n = rhs.value.slice.n + 1
                                 li = compUpdate(li, rhs.value.s, n)
                             elif isinstance(rhs.value.slice, ast.Slice):                # "abba" == a[1:5]
                                 upper = body.value.slice.upper.n
                                 n = upper
                                 li = compUpdate(li, rhs.value.s, n)
                             else:                                                       # "abc" == a
-                                n = len(lhs.s)                            
-                                li = compUpdate(li, rhs, n)
-                        elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Arg):     # a == "abc"
-                            n = len(rhs.s)
-                            li = compUpdate(li, lhs, n)                            
+                                n = len(lhs.value.s)                            
+                                li = compUpdate(li, rhs.value.id, n)
+                        elif isinstance(rhs.value, ast.Str) and isinstance(lhs.value, ast.Name):     # a == "abc"
+                            n = len(rhs.value.s)
+                            li = compUpdate(li, lhs.value.id, n)                            
                 else:                       # op: in
-                    lhs = body[i].test.left.s                     
+                    lhs = body[i].test.left.value.s                     
                     rhs = body[i].test.comparators[0]
-                    if isinstance(rhs, ast.Arg):
+                    if isinstance(rhs, ast.Name):
                         if isinstance(rhs.value.slice, ast.Index):      # "a" in a[2]
                             n = rhs.value.slice.value.n + 1
                             li = compUpdate(li, rhs.value.s, n)
