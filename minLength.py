@@ -40,9 +40,17 @@ class ChangeIf(TreeWalk):
                     lhs = body[i].test.left                 # * == *' 에서 *
                     rhs = body[i].test.comparators[0]       # * == *' 에서 *'
                     if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):
-                        if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Arg):       # "abc" == a
-                            n = len(lhs.s)                            
-                            li = compUpdate(li, rhs, n)
+                        if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Arg):       
+                            if isinstance(rhs.value.slice, ast.Index):                  # "a" == a[3]
+                                n = rhs.value.slice.value.n + 1
+                                li = compUpdate(li, rhs.value.s, n)
+                            elif isinstance(rhs.value.slice, ast.Slice):                # "abba" == a[1:5]
+                                upper = body.value.slice.upper.n
+                                n = upper
+                                li = compUpdate(li, rhs.value.s, n)
+                            else:                                                       # "abc" == a
+                                n = len(lhs.s)                            
+                                li = compUpdate(li, rhs, n)
                         elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Arg):     # a == "abc"
                             n = len(rhs.s)
                             li = compUpdate(li, lhs, n)                            
