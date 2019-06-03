@@ -18,17 +18,18 @@ def fun(a, b, c):
             if c == "abc":
                 pass
 
-li={} #dict 
+li=dict() #dict 
 
 def compUpdate(li, key, val):
-    if key not in li:
-        li[key] = val
-    else:
+    if bool(li) and key in li:
         if li[key] > n:
             li[key] = n
             return li
         else:
             return li
+    else:
+        if li is not None: 
+            li[key] = val
 
 # op: ==, in
 # 한 쪽 스트링, 다른 쪽 arg 인 경우에 대해서
