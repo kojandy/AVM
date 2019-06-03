@@ -18,14 +18,12 @@ li=dict() #dict
 
 def compUpdate(li, key, val):
     if bool(li) and key in li:
-        print(li[key])
-        print(val)
+        #print(li[key])
+        #print(val)
         if li[key] < val:       #replace to bigger one
-            
             li[key] = val
             return li
         else:                   #don't replace
-            
             return li
     else:
         if li is not None: 
@@ -100,10 +98,11 @@ class ChangeIf(TreeWalk):
         self.__name = self.cur_node.func.id
         return True
 
-def minLength(f):
-    _ast = astor.code_to_ast(f)
+def minLength(_ast):
+    #_ast = astor.code_to_ast(f)
     walker = ChangeIf()
     walker.walk(_ast)
     return li
 
-print( minLength(fun) )
+_ast = astor.code_to_ast(fun)
+print( minLength(_ast) )
