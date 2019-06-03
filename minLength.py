@@ -11,29 +11,33 @@ import ast
 from tree_walk import * 
 '''
 def fun(a, b, c):
-    if "abcddddd" in a:
-        if "ddddda" in b:
+    if "abcddddd" in a[2:4]:
+        if "ddddda" in b[6]:
             if "abdd" in c:
                 pass
-            if c == "abc":
+            if c[3:6] == "abc":
                 pass
 '''
 def fun(a, b, c):
-    if "abcddddd" == a:
+    if "ab" == a[2:4]:
         pass
 
 li=dict() #dict 
-
+#compUpdate 실행하면 None type으로 바뀜. 왜? 이거 해결하자
 def compUpdate(li, key, val):
     if bool(li) and key in li:
-        if li[key] > n:
-            li[key] = n
+        if li[key] > val:
+            li[key] = val
+            #print("111111", type(li))
             return li
         else:
+            #print("2222222", type(li))
             return li
     else:
         if li is not None: 
             li[key] = val
+            #print("33333333", type(li))
+            return li
 
 # op: ==, in
 # 한 쪽 스트링, 다른 쪽 arg 인 경우에 대해서
@@ -49,7 +53,7 @@ class ChangeIf(TreeWalk):
                 if isinstance(op,ast.Eq):   # op: ==               
                     lhs = body[i].test.left                 # * == *' 에서 *
                     rhs = body[i].test.comparators[0]       # * == *' 에서 *'
-                    print(lhs, rhs)
+                    #print(lhs, rhs)
                     #print(isinstance(rhs, ast.Name))
                     #yes slicing to arg
                     if isinstance(lhs, ast.Subscript) or isinstance(rhs, ast.Subscript):    # somewhere sliced                        
@@ -72,12 +76,12 @@ class ChangeIf(TreeWalk):
                                 #print(333)
                                 n = len(lhs.s)
                                 #print(li, rhs.id, n)
-                                print( "before:", type(li))
+                                #print( "before:", type(li))
                                 li = compUpdate(li, rhs.id, n)
-                                type(li)
+                                #type(li)
                                 #li['a'] = 3
                                 #li[rhs.id] = n
-                                print(li)
+                                #print(li)
                             elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Name):    # 왼쪽이 파라미터
                                 n = len(rhs.s)
                                 li = compUpdate(li, lhs.id, n)                   
