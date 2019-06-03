@@ -1,6 +1,13 @@
 import ast
 
 
+def calc_b_dist(pred: ast.Compare) -> float:
+    left = pred.left.s
+    right = pred.comparators[0].s
+    op = pred.ops[0]
+    return b_dist(op, left, right)
+
+
 def b_dist(op, left, right):
     if len(left)!=len(right):
         print('not same length: %s %s' % left, right)
@@ -77,5 +84,5 @@ if __name__ == '__main__':
     ]
 
     # test_b_dist_eq(op_list[0])
-    test_str_to_ordinal_value()
-    test_b_dist_order(op_list[1:])
+    # test_str_to_ordinal_value()
+    # test_b_dist_order(op_list[1:])
