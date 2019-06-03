@@ -9,7 +9,7 @@
 import astor
 import ast
 from tree_walk import * 
-
+'''
 def fun(a, b, c):
     if "abcddddd" in a:
         if "ddddda" in b:
@@ -17,6 +17,10 @@ def fun(a, b, c):
                 pass
             if c == "abc":
                 pass
+'''
+def fun(a, b, c):
+    if "abcddddd" == a:
+        pass
 
 li=dict() #dict 
 
@@ -45,6 +49,8 @@ class ChangeIf(TreeWalk):
                 if isinstance(op,ast.Eq):   # op: ==               
                     lhs = body[i].test.left                 # * == *' 에서 *
                     rhs = body[i].test.comparators[0]       # * == *' 에서 *'
+                    print(lhs, rhs)
+                    #print(isinstance(rhs, ast.Name))
                     #yes slicing to arg
                     if isinstance(lhs, ast.Subscript) or isinstance(rhs, ast.Subscript):    # somewhere sliced                        
                         if isinstance(lhs, ast.Str) and isinstance(rhs.value, ast.Name):# 오른쪽이 파라미터
@@ -61,9 +67,17 @@ class ChangeIf(TreeWalk):
                     # no slicing to arg
                     else:       
                         if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):
+                            #print(3333)
                             if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Name):      # 오른쪽이 파라미터
+                                #print(333)
                                 n = len(lhs.s)
+                                #print(li, rhs.id, n)
+                                print( "before:", type(li))
                                 li = compUpdate(li, rhs.id, n)
+                                type(li)
+                                #li['a'] = 3
+                                #li[rhs.id] = n
+                                print(li)
                             elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Name):    # 왼쪽이 파라미터
                                 n = len(rhs.s)
                                 li = compUpdate(li, lhs.id, n)                   
