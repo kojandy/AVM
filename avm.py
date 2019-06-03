@@ -6,6 +6,7 @@ import unittest
 from typing import Dict, List
 
 import astor
+import calcfitness
 
 
 def b_dist(pred: ast.Compare) -> float:
@@ -53,7 +54,7 @@ def manip_str(src: str, idx: int, off: int) -> str:
 def avm(pred: ast.Compare) -> Dict[str, str]:
     assert (len(pred.ops) == 1)
     assert (len(pred.comparators) == 1)
-    assert (type(pred.ops[0]) == ast.Eq)
+    # assert (type(pred.ops[0]) == ast.Eq)
 
     length = 0
     if type(pred.left) == ast.Str:
@@ -87,18 +88,18 @@ def avm(pred: ast.Compare) -> Dict[str, str]:
                 guess_inc = copy.deepcopy(guess)
                 guess_dec[vari] = str_dec
                 guess_inc[vari] = str_inc
-                f_dec = b_dist(sub_expr(pred, guess_dec))
-                f_inc = b_dist(sub_expr(pred, guess_inc))
+                f_dec = calcfitness.calc_b_dist(sub_expr(pred, guess_dec))
+                f_inc = calcfitness.calc_b_dist(sub_expr(pred, guess_inc))
                 direction = 1 if f_inc < f_dec else -1
                 amp = 1
-                prev_f = b_dist(sub_expr(pred, guess))
+                prev_f = calcfitness.calc_b_dist(sub_expr(pred, guess))
 
                 # pattern move
                 while True:
                     new_guess = copy.deepcopy(guess)
                     new_guess[vari] = manip_str(guess[vari], ptr,
                                                 direction * amp)
-                    f = b_dist(sub_expr(pred, new_guess))
+                    f = calcfitness.calc_b_dist(sub_expr(pred, new_guess))
                     if eval(astor.to_source(sub_expr(pred, new_guess))):
                         return new_guess
                     elif f < prev_f:
