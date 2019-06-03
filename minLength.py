@@ -13,12 +13,7 @@ def fun(a, b, c):
                 pass
             if c[3:6] == "abc":
                 pass
-'''
-def fun(a, b, c):
-    if "abcdd" == a[2:8]:
-        if 'dddd' in a[6]:
-            pass
-'''
+
 li=dict() #dict 
 
 def compUpdate(li, key, val):
