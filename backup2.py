@@ -18,14 +18,10 @@ li=dict() #dict
 
 def compUpdate(li, key, val):
     if bool(li) and key in li:
-        print(li[key])
-        print(val)
         if li[key] < val:       #replace to bigger one
-            
             li[key] = val
             return li
         else:                   #don't replace
-            
             return li
     else:
         if li is not None: 
@@ -57,13 +53,8 @@ class ChangeIf(TreeWalk):
                                 n = upper                                
                                 li = compUpdate(li, rhs.value.id, n)
                         elif isinstance(rhs, ast.Str) and isinstance(lhs.value, ast.Name):     # a[2] == "abc"
-                            if isinstance(lhs.slice, ast.Index):                  # a[3] == "a"
-                                n = lhs.slice.value.n + 1                                
-                                li = compUpdate(li, lhs.value.id, n)
-                            elif isinstance(lhs.slice, ast.Slice):                #  a[1:5] == "abba"                                
-                                upper = lhs.slice.upper.n
-                                n = upper                                
-                                li = compUpdate(li, lhs.value.id, n)
+                            n = len(rhs.s)
+                            li = compUpdate(li, lhs.value.id, n) 
                     # no slicing to arg
                     else:       
                         if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):                            
