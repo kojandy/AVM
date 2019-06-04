@@ -7,7 +7,7 @@ from tree_walk import *
 
 
 def fun(a, b, c):
-    if "abcddddd" in a[2:4]:
+    if "abcddddd" < a[2:42]:
         if "ddddda" in b[6]:
             if "abdd" in c:
                 pass
