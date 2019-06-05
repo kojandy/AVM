@@ -153,7 +153,6 @@ def rt(pred):
             count += 1
             print(count)
             guess = {x: ast.Str(gen_rand_str(length)) for x in vari}
-            print(guess["a"].s)
             guess_depth2 += 1
             if not vari:
                 return guess
@@ -296,7 +295,7 @@ def e_expr(expr, vari):
 
 
 def test_pred(pred: str):
-    print( rt(ast.parse(pred).body[0].value)['a'].s )
+    rt(ast.parse(pred).body[0].value)
 
 
 if __name__ == '__main__':
