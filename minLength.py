@@ -104,5 +104,6 @@ def minLength(_ast):
     walker.walk(_ast)
     return li
 
-_ast = astor.code_to_ast(fun)
-print( minLength(_ast) )
+if __name__ == '__main__':
+    _ast = astor.code_to_ast(fun)
+    print( minLength(_ast) )

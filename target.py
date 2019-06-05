@@ -1,7 +1,8 @@
-def fun(a, b, c):
-    if a == 100:
-        if a < b:
-            if c == 0:
-                pass
-            if b < c:
-                pass
+def fun(a, b):
+    if a == 'aaaa':
+        if b == 'bbbb':
+            pass
+        if b != 'asdf':
+            pass
+    if a == 'cccc':
+        pass
