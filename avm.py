@@ -6,9 +6,9 @@ import unittest
 from typing import Dict, List
 
 import astor
+
 import calcfitness
 import minLength
-
 
 branch_lineno = [0]
 
@@ -58,6 +58,7 @@ def manip_str(src: str, idx: int, off: int) -> str:
     res = max(mini, min(ord(src[idx]) + off, maxi))
     return src[:idx] + chr(res) + src[idx + 1:]
 
+
 def is_satisfied(preds: List[ast.Compare], env):
     sat = True
     for pred in preds:
@@ -65,6 +66,7 @@ def is_satisfied(preds: List[ast.Compare], env):
         if not sat:
             break
     return sat
+
 
 def add_all_dist(preds: List[ast.Compare], env):
     dist = 0
@@ -156,6 +158,7 @@ class TestAVM(unittest.TestCase):
         res = test_pred("a[3] == b[3]")
         self.assertEqual(res['a'][3], res['b'][3])
 
+
 def neg(pred):
     pred = copy.deepcopy(pred)
     ops = pred.ops[0]
@@ -194,7 +197,9 @@ def c_branch(stmt):
 
 
 cond_tree = {}
-def extract_condition(stmt: ast.stmt, conds: List[ast.Compare]=[]):
+
+
+def extract_condition(stmt: ast.stmt, conds: List[ast.Compare] = []):
     conds = copy.deepcopy(conds)
     if type(stmt) == list:
         for smt in stmt:
@@ -204,7 +209,10 @@ def extract_condition(stmt: ast.stmt, conds: List[ast.Compare]=[]):
         cond_false = copy.deepcopy(conds)
         cond_true.append(stmt.test)
         cond_false.append(neg(stmt.test))
-        cond_tree[branch_lineno.index(stmt.lineno)] = {'T': cond_true, 'F': cond_false}
+        cond_tree[branch_lineno.index(stmt.lineno)] = {
+            'T': cond_true,
+            'F': cond_false
+        }
         extract_condition(stmt.body, cond_true)
         extract_condition(stmt.orelse, cond_false)
     elif type(stmt) == ast.Pass:
@@ -233,5 +241,7 @@ if __name__ == '__main__':
     extract_condition(target_fn.body)
     for i in cond_tree:
         for tf in cond_tree[i]:
-            print("%d%s:" % (i, tf), " and ".join([astor.to_source(x).strip() for x in cond_tree[i][tf]]))
+            print(
+                "%d%s:" % (i, tf), " and ".join(
+                    [astor.to_source(x).strip() for x in cond_tree[i][tf]]))
             print(avm(cond_tree[i][tf]))
