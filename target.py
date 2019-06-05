@@ -3,13 +3,20 @@ def fun(a, b):
         pass
     if 'abc' == 'abc':
         pass
-    if a < 'aaaa':
-        if a < 'zzzz':
+    if a[0] == 'a':
+        if a[1] == 'b':
             pass
-    if a == 'aaaa':
+    if a[2:4] == 'ab':
+        pass
+    if a[2:4] == b[0:2]:
+        pass
+    if a < 'aaaaa':
+        if a < 'zzzzz':
+            pass
+    if a == 'aazaa':
         if b < 'bbbb':
             pass
         if b != 'asdf':
             pass
-    if a == 'cccc':
+    if a == 'cczcc':
         pass
