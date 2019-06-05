@@ -1,6 +1,3 @@
-# input: .py - target function
-# output: integer - minimum length of string input
-
 import astor
 import ast
 from tree_walk import * 
@@ -81,11 +78,11 @@ class ChangeIf(TreeWalk):
         self.__name = self.cur_node.func.id
         return True
 
-def minLength(f):
-    _ast = astor.code_to_ast(f)
+def minLength(_ast):
+    #_ast = astor.code_to_ast(f)
     walker = ChangeIf()
     walker.walk(_ast)
     return li
 
 #_ast = astor.code_to_ast(fun)
-print( minLength(fun) )
+#print( minLength(fun) )
