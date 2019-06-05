@@ -85,7 +85,10 @@ def avm(preds: List[ast.Compare]) -> Dict[str, str]:
     for pred in preds:
         for a in ast.walk(pred):
             if type(a) == ast.Name:
-                guess[a.id] = make_rand_str_length(minlen[a.id])
+                try:
+                    guess[a.id] = make_rand_str_length(minlen[a.id])
+                except KeyError:
+                    guess[a.id] = make_rand_str_length(1)
 
     if is_satisfied(preds, guess):
         return guess
