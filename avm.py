@@ -92,7 +92,10 @@ def avm(preds: List[ast.Compare]) -> Dict[str, str]:
     elif not guess:
         return None
 
+    guess_depth = 0
     while True:
+        if guess_depth > 2000:
+            return None
         for vari in guess:
             for ptr in range(len(guess[vari])):
                 # exploratory move
@@ -110,6 +113,7 @@ def avm(preds: List[ast.Compare]) -> Dict[str, str]:
 
                 # pattern move
                 while True:
+                    guess_depth += 1
                     new_guess = copy.deepcopy(guess)
                     new_guess[vari] = manip_str(guess[vari], ptr,
                                                 direction * amp)
