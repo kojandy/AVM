@@ -6,7 +6,11 @@ import unittest
 from typing import Dict, List
 
 import astor
+
 import calcfitness
+import minLength
+
+branch_lineno = [0]
 
 
 def b_dist(pred: ast.Compare) -> float:
@@ -47,38 +51,51 @@ def sub_expr(expr: ast.Expr, env: List[Dict[str, str]]) -> ast.Expr:
 
 
 def manip_str(src: str, idx: int, off: int) -> str:
-    res = max(0, min(ord(src[idx]) + off, 0x110000 - 1))
+    # mini = 0
+    # maxi = 0x110000 - 1
+    mini = ord('A')
+    maxi = ord('z')
+    res = max(mini, min(ord(src[idx]) + off, maxi))
     return src[:idx] + chr(res) + src[idx + 1:]
 
 
-def avm(pred: ast.Compare) -> Dict[str, str]:
-    assert (len(pred.ops) == 1)
-    assert (len(pred.comparators) == 1)
+def is_satisfied(preds: List[ast.Compare], env):
+    sat = True
+    for pred in preds:
+        sat = eval(astor.to_source(sub_expr(pred, env)))
+        if not sat:
+            break
+    return sat
+
+
+def add_all_dist(preds: List[ast.Compare], env):
+    dist = 0
+    for pred in preds:
+        dist += calcfitness.calc_b_dist(sub_expr(pred, env))
+    return dist
+
+
+def avm(preds: List[ast.Compare]) -> Dict[str, str]:
+    # assert (len(pred.ops) == 1)
+    # assert (len(pred.comparators) == 1)
     # assert (type(pred.ops[0]) == ast.Eq)
 
-    length = 0
-    if type(pred.left) == ast.Str:
-        length = len(pred.left.s)
-    elif type(pred.comparators[0]) == ast.Str:
-        length = len(pred.comparators[0].s)
+    global minlen
+    guess = {}
+    for pred in preds:
+        for a in ast.walk(pred):
+            if type(a) == ast.Name:
+                guess[a.id] = make_rand_str_length(minlen[a.id])
 
+    if is_satisfied(preds, guess):
+        return guess
+    elif not guess:
+        return None
+
+    guess_depth = 0
     while True:
-        try:
-            guess = {}
-            for a in ast.walk(pred):
-                if type(a) == ast.Name:
-                    guess[a.id] = make_rand_str_length(length)
-
-            if eval(astor.to_source(sub_expr(pred, guess))):
-                return guess
-            elif not guess:
-                return None
-
-            break
-        except IndexError:
-            length += 1
-
-    while True:
+        if guess_depth > 2000:
+            return None
         for vari in guess:
             for ptr in range(len(guess[vari])):
                 # exploratory move
@@ -88,19 +105,20 @@ def avm(pred: ast.Compare) -> Dict[str, str]:
                 guess_inc = copy.deepcopy(guess)
                 guess_dec[vari] = str_dec
                 guess_inc[vari] = str_inc
-                f_dec = calcfitness.calc_b_dist(sub_expr(pred, guess_dec))
-                f_inc = calcfitness.calc_b_dist(sub_expr(pred, guess_inc))
+                f_dec = add_all_dist(preds, guess_dec)
+                f_inc = add_all_dist(preds, guess_inc)
                 direction = 1 if f_inc < f_dec else -1
                 amp = 1
-                prev_f = calcfitness.calc_b_dist(sub_expr(pred, guess))
+                prev_f = add_all_dist(preds, guess)
 
                 # pattern move
                 while True:
+                    guess_depth += 1
                     new_guess = copy.deepcopy(guess)
                     new_guess[vari] = manip_str(guess[vari], ptr,
                                                 direction * amp)
-                    f = calcfitness.calc_b_dist(sub_expr(pred, new_guess))
-                    if eval(astor.to_source(sub_expr(pred, new_guess))):
+                    f = add_all_dist(preds, new_guess)
+                    if is_satisfied(preds, new_guess):
                         return new_guess
                     elif f < prev_f:
                         amp *= 2
@@ -145,5 +163,89 @@ class TestAVM(unittest.TestCase):
         self.assertEqual(res['a'][3], res['b'][3])
 
 
+def neg(pred):
+    pred = copy.deepcopy(pred)
+    ops = pred.ops[0]
+    if type(ops) == ast.Eq:
+        pred.ops[0] = ast.NotEq()
+        return pred
+    elif type(ops) == ast.NotEq:
+        pred.ops[0] = ast.Eq()
+        return pred
+    elif type(ops) == ast.Lt:
+        pred.ops[0] = ast.GtE()
+        return pred
+    elif type(ops) == ast.Gt:
+        pred.ops[0] = ast.LtE()
+        return pred
+    elif type(ops) == ast.LtE:
+        pred.ops[0] = ast.Gt()
+        return pred
+    elif type(ops) == ast.GtE:
+        pred.ops[0] = ast.Lt()
+        return pred
+    else:
+        print('%s Not Supported' % type(ops).__name__)
+        exit(1)
+
+
+def c_branch(stmt):
+    global branch_lineno
+    if type(stmt) == list:
+        for e in stmt:
+            c_branch(e)
+    elif type(stmt) == ast.If or type(stmt) == ast.While:
+        branch_lineno.append(stmt.lineno)
+        c_branch(stmt.body)
+        c_branch(stmt.orelse)
+
+
+cond_tree = {}
+
+
+def extract_condition(stmt: ast.stmt, conds: List[ast.Compare] = []):
+    conds = copy.deepcopy(conds)
+    if type(stmt) == list:
+        for smt in stmt:
+            extract_condition(smt, conds)
+    elif type(stmt) == ast.If:
+        cond_true = copy.deepcopy(conds)
+        cond_false = copy.deepcopy(conds)
+        cond_true.append(stmt.test)
+        cond_false.append(neg(stmt.test))
+        cond_tree[branch_lineno.index(stmt.lineno)] = {
+            'T': cond_true,
+            'F': cond_false
+        }
+        extract_condition(stmt.body, cond_true)
+        extract_condition(stmt.orelse, cond_false)
+    elif type(stmt) == ast.Pass:
+        pass
+    else:
+        raise Exception(ast.dump(stmt))
+
+
 if __name__ == '__main__':
-    unittest.main()
+    tree = astor.parse_file('target.py')
+
+    target_fn = None
+    for node in tree.body:
+        if type(node) == ast.Import:
+            exec(astor.to_source(node))
+        elif type(node) == ast.FunctionDef:
+            exec(astor.to_source(node))
+            target_fn = node
+
+    c_branch(target_fn.body)
+    branch_lineno = sorted(branch_lineno)
+
+    global minlen
+    minlen = minLength.minLength(target_fn)
+
+    extract_condition(target_fn.body)
+    for i in cond_tree:
+        for tf in cond_tree[i]:
+            print(
+                "%d%s:" % (i, tf), " and ".join(
+                    [astor.to_source(x).strip() for x in cond_tree[i][tf]]))
+            print(avm(cond_tree[i][tf]))

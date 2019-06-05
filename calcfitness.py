@@ -21,7 +21,7 @@ def b_dist(op, left, right):
     if type(op) == ast.NotEq:
         for i in range(len(left)):
             d += eval('abs(%s - %s)' % (ord(left[i]), ord(right[i])))
-        return d
+        return -d
     if type(op) == ast.In:
         return
     if type(op) == ast.Gt:

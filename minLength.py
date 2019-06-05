@@ -1,11 +1,8 @@
-# input: .py - target function
-# output: integer - minimum length of string input
-
 import astor
 import ast
 from tree_walk import * 
 
-
+'''
 def fun(a, b, c):
     if "abcddddd" < a[2:42]:
         if "ddddda" in b[6]:
@@ -13,6 +10,11 @@ def fun(a, b, c):
                 pass
             if c[3:6] == "abc":
                 pass
+'''
+def fun(a,b):
+    if b < 'bbbb':
+        pass
+
 
 li=dict() #dict 
 
@@ -41,57 +43,35 @@ class ChangeIf(TreeWalk):
             self.walk(child)            
             if isinstance(child, ast.If):
                 op = body[i].test.ops[0]                             
-                if isinstance(op,ast.Eq):   # op: ==                         
-                    lhs = body[i].test.left                 # * == *' 에서 *
-                    rhs = body[i].test.comparators[0]       # * == *' 에서 *'                    
-                    #yes slicing to arg
-                    if isinstance(lhs, ast.Subscript) or isinstance(rhs, ast.Subscript):    # somewhere sliced                        
-                        if isinstance(lhs, ast.Str) and isinstance(rhs.value, ast.Name):# 오른쪽이 파라미터
-                            if isinstance(rhs.slice, ast.Index):                  # "a" == a[3]
-                                n = rhs.slice.value.n + 1                                
-                                li = compUpdate(li, rhs.value.id, n)
-                            elif isinstance(rhs.slice, ast.Slice):                # "abba" == a[1:5]                                
-                                upper = rhs.slice.upper.n
-                                n = upper                                
-                                li = compUpdate(li, rhs.value.id, n)
-                        elif isinstance(rhs, ast.Str) and isinstance(lhs.value, ast.Name):     # a[2] == "abc"
-                            if isinstance(lhs.slice, ast.Index):                  # a[3] == "a"
-                                n = lhs.slice.value.n + 1                                
-                                li = compUpdate(li, lhs.value.id, n)
-                            elif isinstance(lhs.slice, ast.Slice):                #  a[1:5] == "abba"                                
-                                upper = lhs.slice.upper.n
-                                n = upper                                
-                                li = compUpdate(li, lhs.value.id, n)
-                    # no slicing to arg
-                    else:       
-                        if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):                            
-                            if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Name):      # 오른쪽이 파라미터                                
-                                n = len(lhs.s)
-                                li = compUpdate(li, rhs.id, n)                                
-                            elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Name):    # 왼쪽이 파라미터
-                                n = len(rhs.s)
-                                li = compUpdate(li, lhs.id, n)                   
-                else:                                       # op: in                    
-                    lhs = body[i].test.left.s               # 'abcde' 같은 것            
-                    rhs = body[i].test.comparators[0]       #.id 해야 파라미터 나옴
-                    # yes slicing
-                    if isinstance(lhs, ast.Subscript) or isinstance(rhs, ast.Subscript):                        
-                        if isinstance(rhs.value, ast.Name):
-                            if isinstance(rhs.slice, ast.Index):      # "a" in a[2]
-                                n = rhs.slice.value.n + 1                                                                
-                                li = compUpdate(li, rhs.value.id, n)                                
-                            elif isinstance(rhs.slice, ast.Slice):    # "a" in a[2:4]
-                                upper = rhs.slice.upper.n
-                                #lower = rhs.slice.lower.n
-                                n = upper
-                                li = compUpdate(li, rhs.value.id, n)
-                            else:                                           # "abb" in a
-                                n = len(lhs)
-                                li = compUpdate(li, rhs.value.id, n)
-                    # no slicing
-                    else: 
-                        n = len(lhs)
-                        li = compUpdate(li, rhs.id, n)
+                lhs = body[i].test.left                 # * == *' 에서 *
+                rhs = body[i].test.comparators[0]       # * == *' 에서 *'                    
+                #yes slicing to arg
+                if isinstance(lhs, ast.Subscript) or isinstance(rhs, ast.Subscript):    # somewhere sliced                        
+                    if isinstance(lhs, ast.Str) and isinstance(rhs.value, ast.Name):# 오른쪽이 파라미터
+                        if isinstance(rhs.slice, ast.Index):                  # "a" == a[3]
+                            n = rhs.slice.value.n + 1                                
+                            li = compUpdate(li, rhs.value.id, n)
+                        elif isinstance(rhs.slice, ast.Slice):                # "abba" == a[1:5]                                
+                            upper = rhs.slice.upper.n
+                            n = upper                                
+                            li = compUpdate(li, rhs.value.id, n)
+                    elif isinstance(rhs, ast.Str) and isinstance(lhs.value, ast.Name):     # a[2] == "abc"
+                        if isinstance(lhs.slice, ast.Index):                  # a[3] == "a"
+                            n = lhs.slice.value.n + 1                                
+                            li = compUpdate(li, lhs.value.id, n)
+                        elif isinstance(lhs.slice, ast.Slice):                #  a[1:5] == "abba"                                
+                            upper = lhs.slice.upper.n
+                            n = upper                                
+                            li = compUpdate(li, lhs.value.id, n)
+                # no slicing to arg
+                else:       
+                    if isinstance(lhs, ast.Str) or isinstance(rhs, ast.Str):                            
+                        if isinstance(lhs, ast.Str) and isinstance(rhs, ast.Name):      # 오른쪽이 파라미터                                
+                            n = len(lhs.s)
+                            li = compUpdate(li, rhs.id, n)                                
+                        elif isinstance(rhs, ast.Str) and isinstance(lhs, ast.Name):    # 왼쪽이 파라미터
+                            n = len(rhs.s)
+                            li = compUpdate(li, lhs.id, n)                   
         return True
 
     def pre_Call(self):
@@ -104,5 +84,5 @@ def minLength(_ast):
     walker.walk(_ast)
     return li
 
-_ast = astor.code_to_ast(fun)
-print( minLength(_ast) )
+#_ast = astor.code_to_ast(fun)
+#print( minLength(fun) )
