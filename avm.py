@@ -85,7 +85,7 @@ def avm(preds: List[ast.Compare]) -> Dict[str, str]:
     for pred in preds:
         for a in ast.walk(pred):
             if type(a) == ast.Name:
-                guess[a.id] = make_rand_str_length(4)
+                guess[a.id] = make_rand_str_length(minlen[a.id])
 
     if is_satisfied(preds, guess):
         return guess
@@ -239,8 +239,8 @@ if __name__ == '__main__':
     c_branch(target_fn.body)
     branch_lineno = sorted(branch_lineno)
 
-    # global minlen
-    # minlen = minLength.minLength(target_fn)
+    global minlen
+    minlen = minLength.minLength(target_fn)
 
     extract_condition(target_fn.body)
     for i in cond_tree:
