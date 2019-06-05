@@ -1,3 +1,4 @@
+#!/bin/env python
 import ast
 import copy
 import random
