@@ -85,7 +85,7 @@ def avm(preds: List[ast.Compare]) -> Dict[str, str]:
     for pred in preds:
         for a in ast.walk(pred):
             if type(a) == ast.Name:
-                guess[a.id] = make_rand_str_length(minlen[a.id])
+                guess[a.id] = make_rand_str_length(3)
 
     if is_satisfied(preds, guess):
         return guess
@@ -93,6 +93,7 @@ def avm(preds: List[ast.Compare]) -> Dict[str, str]:
         return None
 
     guess_depth = 0
+    count = 0
     while True:
         if guess_depth > 2000:
             return None
@@ -113,6 +114,8 @@ def avm(preds: List[ast.Compare]) -> Dict[str, str]:
 
                 # pattern move
                 while True:
+                    count += 1
+                    print(count)
                     guess_depth += 1
                     new_guess = copy.deepcopy(guess)
                     new_guess[vari] = manip_str(guess[vari], ptr,
@@ -226,26 +229,4 @@ def extract_condition(stmt: ast.stmt, conds: List[ast.Compare] = []):
 
 
 if __name__ == '__main__':
-    tree = astor.parse_file('target.py')
-
-    target_fn = None
-    for node in tree.body:
-        if type(node) == ast.Import:
-            exec(astor.to_source(node))
-        elif type(node) == ast.FunctionDef:
-            exec(astor.to_source(node))
-            target_fn = node
-
-    c_branch(target_fn.body)
-    branch_lineno = sorted(branch_lineno)
-
-    global minlen
-    minlen = minLength.minLength(target_fn)
-
-    extract_condition(target_fn.body)
-    for i in cond_tree:
-        for tf in cond_tree[i]:
-            print(
-                "%d%s:" % (i, tf), " and ".join(
-                    [astor.to_source(x).strip() for x in cond_tree[i][tf]]))
-            print(avm(cond_tree[i][tf]))
+    avm([ast.parse('a == "abb"').body[0].value])

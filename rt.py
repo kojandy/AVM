@@ -142,6 +142,7 @@ def rt(pred):
     length = 0
     guess_depth1 = 0
 
+    count = 0
     while True:
         length += 1
         guess_depth1 += 1
@@ -149,6 +150,8 @@ def rt(pred):
         if guess_depth1 > 3:  # max length
             break
         while True:
+            count += 1
+            print(count)
             guess = {x: ast.Str(gen_rand_str(length)) for x in vari}
             print(guess["a"].s)
             guess_depth2 += 1
